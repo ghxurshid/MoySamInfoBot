@@ -1,58 +1,87 @@
-﻿using MoySamInfoBot.TelegramBot.Application.Services;
+﻿using MoySamInfoBot.TelegramBot.Core.Application.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Telegram.Bot;
+using Telegram.Bot.Exceptions;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace MoySamInfoBot.TelegramBot.Presentation
 {
     public class BotController
     {        
-        private readonly UserService _userService;      
-        private readonly StateService _stateService;
+        private readonly UserService _userService;
+        private readonly MenuService _menuService;
 
-        public BotController(UserService userService, StateService stateService)
+        private TelegramBotClient _client;
+        private CancellationTokenSource _cts;
+
+        public BotController(UserService userService, MenuService menuService)
         {
             _userService = userService;
-            _stateService = stateService;
+            _menuService = menuService;
+
+            _cts = new();
+            _client = new TelegramBotClient("767554006:AAFCcBzxxdnsgHJVMb3Rn96pHlTC9a-APwk"); 
         }
 
-        public async Task HandleMessageAsync(Message message)
+        public void Start()
         {
-            // Получить пользователя
-            var user = _userService.GetUser(message.Chat.Id);
-
-            // Получить состояние пользователя
-            var userState = _stateService.GetUserState(user);
-
-            // Обработка сообщения в зависимости от состояния пользователя
-            switch (userState)
+            // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
+            ReceiverOptions receiverOptions = new()
             {
-                case UserState.MainMenu:
-                    await HandleMainMenu(message, user);
-                    break;
-                case UserState.SubMenu:
-                    await HandleSubMenu(message, user);
-                    break;
-                    // Другие возможные состояния
-            }
+                AllowedUpdates = Array.Empty<UpdateType>() // receive all update types except ChatMember related updates
+            };
+
+            _client.StartReceiving(
+                updateHandler: HandleUpdateAsync,
+                pollingErrorHandler: HandlePollingErrorAsync,
+                receiverOptions: receiverOptions,
+                cancellationToken: _cts.Token
+            );
         }
 
-        private async Task HandleMainMenu(Message message, User user)
+        public void Stop()
         {
-            // Обработка главного меню
-            var menu = _menuService.GetMainMenu();
-            var response = _telegramBot.BuildMenuResponse(menu);
-            await _telegramBot.SendMessageAsync(message.Chat.Id, response);
+            _cts.Cancel();
         }
 
-        private async Task HandleSubMenu(Message message, User user)
+        ~BotController()
         {
-            // Обработка подменю
-            var menu = _menuService.GetSubMenu();
-            var response = _telegramBot.BuildMenuResponse(menu);
-            await _telegramBot.SendMessageAsync(message.Chat.Id, response);
+            Stop();
+        }
+
+        async Task HandleUpdateAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
+        {             
+            if (update.Message is not { } message)
+                return;
+            
+            if (message.Text is not { } messageText)
+                return;
+
+            var chatId = message.Chat.Id;
+
+            var user = await _userService.GetUserByChatIdAsync(chatId);
+            var menu = _menuService.GetMenuByNumber(user.MenuNumber);
+
+            await menu.HandleUpdateAsync(client, update, cancellationToken);            
+        }
+
+        Task HandlePollingErrorAsync(ITelegramBotClient client, Exception exception, CancellationToken cancellationToken)
+        {
+            var ErrorMessage = exception switch
+            {
+                ApiRequestException apiRequestException
+                    => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+                _ => exception.ToString()
+            };
+
+            Console.WriteLine(ErrorMessage);
+            return Task.CompletedTask;
         }
     }
 }
