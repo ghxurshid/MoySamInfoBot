@@ -60,8 +60,7 @@ namespace MoySamInfoBot.TelegramBot.Presentation
             if (update.Message is not { } message)
                 return;
             
-            if (message.Text is not { } messageText)
-                return;
+            
 
             var chatId = message.Chat.Id;
 

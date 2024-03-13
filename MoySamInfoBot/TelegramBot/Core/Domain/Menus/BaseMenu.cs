@@ -1,21 +1,22 @@
 ﻿using MoySamInfoBot.TelegramBot.Core.Domain.Delegates;
 using MoySamInfoBot.TelegramBot.Core.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+ 
 
 namespace MoySamInfoBot.TelegramBot.Core.Domain.Menus
 {
     public class BaseMenu : IMenu
     {
-        protected int value;
-        protected readonly Dictionary<UpdateType, UpdateHandler> handlers = new();
+        protected readonly Dictionary<UpdateType, UpdateHandler> updateHandlers = new();
+        protected readonly Dictionary<MessageType, MessageHandler> messageHandlers = new();
+
+        public BaseMenu()
+        {
+            updateHandlers[UpdateType.Message] = DefaultHandleMessageAsync;
+        }
 
         public IMenu Prev { get; set; } = default!;
         public IEnumerable<IMenu> Menus { get; set; } = default!;
@@ -24,10 +25,28 @@ namespace MoySamInfoBot.TelegramBot.Core.Domain.Menus
         {
             var type = update.Type;
 
-            if (handlers.ContainsKey(type))
+            if (updateHandlers.ContainsKey(type))
             {
-                var handler = handlers[type];
+                var handler = updateHandlers[type];
                 await handler.Invoke(client, update, cancellationToken);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public async Task DefaultHandleMessageAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
+        {
+            if (update.Message is not { } message)
+                return;
+
+            var type = message.Type;
+
+            if (messageHandlers.ContainsKey(type))
+            {
+                var handler = messageHandlers[type];
+                await handler.Invoke(client, message, cancellationToken);
             }
             else
             {
