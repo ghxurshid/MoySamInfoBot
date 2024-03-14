@@ -11,7 +11,7 @@ namespace MoySamInfoBot.TelegramBot.Core.Application.Services
 {
     public class UserService : IUserService
     {
-        public async Task<User> GetUserByChatIdAsync(long chatId)
+        public async Task<User> GetUserByIdAsync(long chatId)
         {
             return new User
             {

@@ -1,4 +1,5 @@
 ﻿using MoySamInfoBot.TelegramBot.Core.Application.Interfaces;
+using MoySamInfoBot.TelegramBot.Core.Domain;
 using MoySamInfoBot.TelegramBot.Core.Domain.Enums;
 using MoySamInfoBot.TelegramBot.Core.Domain.Interfaces;
 using MoySamInfoBot.TelegramBot.Core.Domain.Pages;
@@ -12,7 +13,7 @@ namespace MoySamInfoBot.TelegramBot.Core.Application.Services
 {
     public class MenuService : IMenuService
     {
-        public IMenu GetMenuByNumber(MenuNumber number)
+        public IMenu GetMenuByUser(User user)
         {
             return new StartMenu();
         }

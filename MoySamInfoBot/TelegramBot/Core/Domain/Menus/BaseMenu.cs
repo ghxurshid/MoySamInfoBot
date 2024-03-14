@@ -13,13 +13,13 @@ namespace MoySamInfoBot.TelegramBot.Core.Domain.Menus
         protected readonly Dictionary<UpdateType, UpdateHandler> updateHandlers = new();
         protected readonly Dictionary<MessageType, MessageHandler> messageHandlers = new();
 
+        public IMenu Prev { get; set; } = default!;
+        public  IEnumerable<IMenu> Menus { get; set; } = default!;
+
         public BaseMenu()
         {
             updateHandlers[UpdateType.Message] = DefaultHandleMessageAsync;
-        }
-
-        public IMenu Prev { get; set; } = default!;
-        public IEnumerable<IMenu> Menus { get; set; } = default!;
+        }        
 
         public async Task HandleUpdateAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
         {

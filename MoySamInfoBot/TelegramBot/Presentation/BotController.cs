@@ -9,6 +9,8 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Message = Telegram.Bot.Types.Message;
+using User = MoySamInfoBot.TelegramBot.Core.Domain.User;
 
 namespace MoySamInfoBot.TelegramBot.Presentation
 {
@@ -56,18 +58,23 @@ namespace MoySamInfoBot.TelegramBot.Presentation
         }
 
         async Task HandleUpdateAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
-        {             
-            if (update.Message is not { } message)
-                return;
-            
-            
+        {
+            var handler = update switch
+            { 
+                { Message: { } message } => HandleMessageUpdate(client, update, cancellationToken),
+                { EditedMessage: { } message } => HandleMessageUpdate(client, update, cancellationToken),
+                { CallbackQuery: { } callbackQuery } => HandleCallbackQueryUpdate(client, update, cancellationToken),  
+                _ => UnknownUpdateHandlerAsync(client, update, cancellationToken)
+            };
 
-            var chatId = message.Chat.Id;
-
-            var user = await _userService.GetUserByChatIdAsync(chatId);
-            var menu = _menuService.GetMenuByNumber(user.MenuNumber);
-
-            await menu.HandleUpdateAsync(client, update, cancellationToken);            
+            try
+            {
+                await handler;
+            }
+            catch (Exception exception)
+            {
+                HandleErrorAsync(exception, cancellationToken);
+            }
         }
 
         Task HandlePollingErrorAsync(ITelegramBotClient client, Exception exception, CancellationToken cancellationToken)
@@ -81,6 +88,44 @@ namespace MoySamInfoBot.TelegramBot.Presentation
 
             Console.WriteLine(ErrorMessage);
             return Task.CompletedTask;
+        }
+    
+        private void HandleErrorAsync(Exception exception, CancellationToken cancellationToken)
+        {
+            _cts.Cancel();
+        }
+
+        private async Task HandleMessageUpdate(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
+        {
+            if (update.Message is not { } message)
+                return;
+
+            var userId = message.From?.Id ?? 0;
+             
+            await HandleUpdateByUserId(userId, client, update, cancellationToken);
+        }
+
+        private async Task HandleCallbackQueryUpdate(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
+        {
+            if (update.CallbackQuery is not { } callbackQuery)
+                return;
+
+            var userId = callbackQuery.From.Id;
+              
+            await HandleUpdateByUserId(userId, client, update, cancellationToken);
+        }
+
+        private async Task UnknownUpdateHandlerAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
+        {
+            await Task.CompletedTask;
+        }
+
+            private async Task HandleUpdateByUserId(long userId, ITelegramBotClient client, Update update,  CancellationToken cancellationToken) 
+        {
+            var user = await _userService.GetUserByIdAsync(userId); 
+            var menu = _menuService.GetMenuByUser(user);
+
+            await menu.HandleUpdateAsync(client, update, cancellationToken);
         }
     }
 }

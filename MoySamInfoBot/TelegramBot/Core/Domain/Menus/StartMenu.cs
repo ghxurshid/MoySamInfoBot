@@ -5,48 +5,46 @@ using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Types.Enums;
 using Message = Telegram.Bot.Types.Message;
+using Microsoft.VisualBasic;
 
 namespace MoySamInfoBot.TelegramBot.Core.Domain.Pages
 {
-    public class StartMenu : BaseMenu
+    public class StartMenu : BaseMenu, IShowMenuButtons
     {
         public StartMenu() : base()
-        {
-            //updateHandlers[UpdateType.Message] = MessageHandleAsync;
+        {            
             messageHandlers[MessageType.Text] = TextHandleAsync; 
-        }
-        public async Task MessageHandleAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
-        {
-            if (update.Message is not { } message)
-                return;
+        } 
 
-            var type = message.Type;
-
-            if (messageHandlers.ContainsKey(type))
-            {
-                var handler = messageHandlers[type];
-                await handler.Invoke(client, message, cancellationToken);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public async Task TextHandleAsync(ITelegramBotClient client, Message message, CancellationToken cancellationToken)
+        public async Task ShowMenu(long chatId, ITelegramBotClient client, CancellationToken cancellationToken)
         {
             ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
             {
-                new KeyboardButton[] { "Help me2", "Call me ☎️" },
+                new KeyboardButton[] { "Help me", "Call me ☎️" },
             })
             {
                 ResizeKeyboard = true
             };
 
+            Message sentMessage = await client.SendTextMessageAsync(
+                chatId: chatId,
+                text: "Boshlash uchun \"Start\" ni bosing",
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: cancellationToken);
+        }
+
+        public async Task TextHandleAsync(ITelegramBotClient client, Message message, CancellationToken cancellationToken)
+        {
+            if (message.Text is not { } text)
+                return;
+
+            if (text.Equals("/start"))
+            {
+
+            }
             var sentMessage = await client.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: "You said:\n" + message.Text,
-                replyMarkup: replyKeyboardMarkup,
+                text: "You said:\n" + message.Text, 
                 cancellationToken: cancellationToken);
         }
     }
