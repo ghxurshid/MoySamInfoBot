@@ -6,46 +6,42 @@ using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Types.Enums;
 using Message = Telegram.Bot.Types.Message;
 using Microsoft.VisualBasic;
+using MoySamInfoBot.TelegramBot.Core.Application.Interfaces;
+using MoySamInfoBot.TelegramBot.Core.Application.Constants;
 
 namespace MoySamInfoBot.TelegramBot.Core.Domain.Pages
 {
     public class StartMenu : BaseMenu, IShowMenuButtons
     {
-        public StartMenu() : base()
+        public StartMenu(IResourceManager resourceManager) : base(resourceManager)
         {            
             messageHandlers[MessageType.Text] = TextHandleAsync; 
         } 
-
-        public async Task ShowMenu(long chatId, ITelegramBotClient client, CancellationToken cancellationToken)
-        {
-            ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
-            {
-                new KeyboardButton[] { "Help me", "Call me ☎️" },
-            })
-            {
-                ResizeKeyboard = true
-            };
-
-            Message sentMessage = await client.SendTextMessageAsync(
-                chatId: chatId,
-                text: "Boshlash uchun \"Start\" ni bosing",
-                replyMarkup: new ReplyKeyboardRemove(),
-                cancellationToken: cancellationToken);
-        }
-
-        public async Task TextHandleAsync(ITelegramBotClient client, Message message, CancellationToken cancellationToken)
+         
+        public async Task TextHandleAsync(User user, ITelegramBotClient client, Message message, CancellationToken cancellationToken)
         {
             if (message.Text is not { } text)
                 return;
 
-            if (text.Equals("/start"))
-            {
+            var commandName = _resourceManager.CommandNameByKey(CommandConst.Start, user.LanguageCode);
 
-            }
-            var sentMessage = await client.SendTextMessageAsync(
-                chatId: message.Chat.Id,
-                text: "You said:\n" + message.Text, 
-                cancellationToken: cancellationToken);
+            if (text.Equals(commandName))
+            {
+                if (Menus.TryGetValue(Enums.MenuNumber.InputPhoneNumber, out var phoneNumberMenu))
+                {
+                    await phoneNumberMenu.ShowMenu(user.UserId, client, cancellationToken);
+                }                 
+            }            
+        }
+
+        protected override IReplyMarkup Keyboard()
+        {
+            return new ReplyKeyboardRemove();
+        }
+
+        protected override string Message()
+        {
+            return "Boshlash uchun \"Start\" ni bosing";
         }
     }
 }

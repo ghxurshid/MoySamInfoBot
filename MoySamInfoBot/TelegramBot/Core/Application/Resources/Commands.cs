@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MoySamInfoBot.TelegramBot.Core.Domain.Enums
+namespace MoySamInfoBot.TelegramBot.Core.Application.Resources
 {
-    public enum Command
+    internal class Commands
     {
-        None,
-        Start,
-        Inp
     }
 }

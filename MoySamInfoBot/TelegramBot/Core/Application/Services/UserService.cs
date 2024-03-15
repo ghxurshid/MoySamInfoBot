@@ -11,11 +11,11 @@ namespace MoySamInfoBot.TelegramBot.Core.Application.Services
 {
     public class UserService : IUserService
     {
-        public async Task<User> GetUserByIdAsync(long chatId)
+        public async Task<User> GetUserByIdAsync(long userId)
         {
             return new User
             {
-                ChatId = 12256265,
+                UserId = userId,
                 MenuNumber = MenuNumber.StartMenu
             };
         }

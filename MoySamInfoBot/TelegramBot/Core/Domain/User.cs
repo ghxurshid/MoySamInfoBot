@@ -9,8 +9,9 @@ namespace MoySamInfoBot.TelegramBot.Core.Domain
 {
     public class User
     {
-        public int ChatId { get; set; }
+        public long UserId { get; set; }
 
         public MenuNumber MenuNumber { get; set; }
+        public string LanguageCode { get; set; } = string.Empty;
     }
 }

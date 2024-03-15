@@ -23,4 +23,16 @@
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="TelegramBot\Core\Application\Resources\Commands.uz-Cyrl.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="TelegramBot\Core\Application\Resources\Messages.uz-Latn.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="TelegramBot\Core\Application\Resources\Messages.uz-Cyrl.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

@@ -10,7 +10,8 @@ using Telegram.Bot;
 namespace MoySamInfoBot.TelegramBot.Core.Domain.Interfaces
 {
     public interface IMenu
-    {        
-        Task HandleUpdateAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken);
+    {
+        Task ShowMenu(long userId, ITelegramBotClient client, CancellationToken cancellationToken);
+        Task HandleUpdateAsync(User user, ITelegramBotClient client, Update update, CancellationToken cancellationToken);
     }
 }

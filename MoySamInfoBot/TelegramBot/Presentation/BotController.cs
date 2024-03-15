@@ -1,21 +1,14 @@
 ﻿using MoySamInfoBot.TelegramBot.Core.Application.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Message = Telegram.Bot.Types.Message;
-using User = MoySamInfoBot.TelegramBot.Core.Domain.User;
 
 namespace MoySamInfoBot.TelegramBot.Presentation
 {
     public class BotController
-    {        
+    {
         private readonly UserService _userService;
         private readonly MenuService _menuService;
 
@@ -28,7 +21,7 @@ namespace MoySamInfoBot.TelegramBot.Presentation
             _menuService = menuService;
 
             _cts = new();
-            _client = new TelegramBotClient("767554006:AAFCcBzxxdnsgHJVMb3Rn96pHlTC9a-APwk"); 
+            _client = new TelegramBotClient("767554006:AAFCcBzxxdnsgHJVMb3Rn96pHlTC9a-APwk");
         }
 
         public void Start()
@@ -57,19 +50,17 @@ namespace MoySamInfoBot.TelegramBot.Presentation
             Stop();
         }
 
-        async Task HandleUpdateAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
+        public async Task HandleUpdateAsync(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
         {
-            var handler = update switch
-            { 
-                { Message: { } message } => HandleMessageUpdate(client, update, cancellationToken),
-                { EditedMessage: { } message } => HandleMessageUpdate(client, update, cancellationToken),
-                { CallbackQuery: { } callbackQuery } => HandleCallbackQueryUpdate(client, update, cancellationToken),  
-                _ => UnknownUpdateHandlerAsync(client, update, cancellationToken)
-            };
-
             try
             {
-                await handler;
+                var handler = update switch
+                {
+                    { Message: { } } => HandleMessageUpdate(client, update, cancellationToken),
+                    { EditedMessage: { } } => HandleMessageUpdate(client, update, cancellationToken),
+                    { CallbackQuery: { } } => HandleCallbackQueryUpdate(client, update, cancellationToken),
+                    _ => UnknownUpdateHandlerAsync(client, update, cancellationToken)
+                };
             }
             catch (Exception exception)
             {
@@ -89,7 +80,7 @@ namespace MoySamInfoBot.TelegramBot.Presentation
             Console.WriteLine(ErrorMessage);
             return Task.CompletedTask;
         }
-    
+
         private void HandleErrorAsync(Exception exception, CancellationToken cancellationToken)
         {
             _cts.Cancel();
@@ -101,7 +92,7 @@ namespace MoySamInfoBot.TelegramBot.Presentation
                 return;
 
             var userId = message.From?.Id ?? 0;
-             
+
             await HandleUpdateByUserId(userId, client, update, cancellationToken);
         }
 
@@ -111,7 +102,7 @@ namespace MoySamInfoBot.TelegramBot.Presentation
                 return;
 
             var userId = callbackQuery.From.Id;
-              
+
             await HandleUpdateByUserId(userId, client, update, cancellationToken);
         }
 
@@ -120,12 +111,12 @@ namespace MoySamInfoBot.TelegramBot.Presentation
             await Task.CompletedTask;
         }
 
-            private async Task HandleUpdateByUserId(long userId, ITelegramBotClient client, Update update,  CancellationToken cancellationToken) 
+        private async Task HandleUpdateByUserId(long userId, ITelegramBotClient client, Update update, CancellationToken cancellationToken)
         {
-            var user = await _userService.GetUserByIdAsync(userId); 
+            var user = await _userService.GetUserByIdAsync(userId);
             var menu = _menuService.GetMenuByUser(user);
 
-            await menu.HandleUpdateAsync(client, update, cancellationToken);
+            await menu.HandleUpdateAsync(user, client, update, cancellationToken);
         }
     }
 }

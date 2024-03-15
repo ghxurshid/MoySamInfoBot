@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MoySamInfoBot.TelegramBot.Core.Application.Interfaces
+namespace MoySamInfoBot.TelegramBot.Core.Application.Resources
 {
-    public interface ICommandService
+    internal class Messages
     {
-
     }
 }
