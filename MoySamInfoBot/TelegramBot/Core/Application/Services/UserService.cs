@@ -1,6 +1,8 @@
-﻿using MoySamInfoBot.TelegramBot.Core.Application.Interfaces;
-using MoySamInfoBot.TelegramBot.Core.Domain;
+﻿using Autofac;
+using MoySamInfoBot.TelegramBot.Core.Application.Interfaces;
 using MoySamInfoBot.TelegramBot.Core.Domain.Enums;
+using MoySamInfoBot.TelegramBot.Core.Domain.Interfaces;
+using MoySamInfoBot.TelegramBot.Infrastructure.Context;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +13,27 @@ namespace MoySamInfoBot.TelegramBot.Core.Application.Services
 {
     public class UserService : IUserService
     {
-        public async Task<User> GetUserByIdAsync(long userId)
+        protected readonly Context _context;
+
+        public UserService()
         {
-            return new User
+            _context = DependencyInjection.Container.Resolve<Context>();
+        }
+        public async Task<IUser> GetUserByIdAsync(long userId)
+        {
+            var user = _context?.Users.Where(u => u.UserId == userId).FirstOrDefault();
+              
+            return await Task.FromResult(user);             
+        }
+
+        public async Task Save(IUser user)
+        {
+            var user2 = _context?.Users.Where(u => u.UserId == user.UserId).FirstOrDefault();
+
+            if (user2 != null)
             {
-                UserId = userId,
-                MenuNumber = MenuNumber.StartMenu
-            };
+                user2.MenuNumber = user.MenuNumber;
+            }             
         }
     }
 }

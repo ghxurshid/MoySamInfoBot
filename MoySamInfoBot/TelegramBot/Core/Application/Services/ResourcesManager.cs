@@ -6,12 +6,12 @@ using System.Resources;
 
 namespace MoySamInfoBot.TelegramBot.Core.Application.Services
 {
-    public class ResourceManagerService : IResourceManager
+    public class ResourcesManager : IResourcesManager
     {
         private readonly ResourceManager _commands;
         private readonly ResourceManager _messages;
 
-        public ResourceManagerService()
+        public ResourcesManager()
         {
             _commands = new ResourceManager("CardXabar.Application.Resources.Commands",
                 typeof(ResouceManagerScanner).Assembly);

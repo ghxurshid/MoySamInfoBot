@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MoySamInfoBot.TelegramBot.Core.Application.Resources
 {
-    internal class ResouceManagerScanner
+    public class ResouceManagerScanner
     {
     }
 }

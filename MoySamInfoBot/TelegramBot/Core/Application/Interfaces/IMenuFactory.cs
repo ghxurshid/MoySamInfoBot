@@ -1,16 +1,17 @@
-﻿using MoySamInfoBot.TelegramBot.Core.Domain;
-using MoySamInfoBot.TelegramBot.Core.Domain.Enums;
+﻿using MoySamInfoBot.TelegramBot.Core.Domain.Enums;
 using MoySamInfoBot.TelegramBot.Core.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Telegram.Bot.Types;
+using Telegram.Bot;
 
 namespace MoySamInfoBot.TelegramBot.Core.Application.Interfaces
 {
-    public interface IMenuService
+    public interface IMenuFactory
     {
-        IMenu GetMenuByUser(User user);
+        IMenu GetMenu(IUser user, ITelegramBotClient botClient);
     }
 }

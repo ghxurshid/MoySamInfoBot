@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MoySamInfoBot.TelegramBot.Core.Application.Interfaces
 {
-    public interface IResourceManager
+    public interface IResourcesManager
     {
         string CommandNameByKey(string key, string languageCode);
         string CommandKeyByName(string name, string languageCode);

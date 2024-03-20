@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MoySamInfoBot.TelegramBot.Core.Application.Resources
 {
-    internal class Messages
+    public class Messages
     {
     }
 }

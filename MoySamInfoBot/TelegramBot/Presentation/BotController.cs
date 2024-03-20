@@ -10,12 +10,12 @@ namespace MoySamInfoBot.TelegramBot.Presentation
     public class BotController
     {
         private readonly UserService _userService;
-        private readonly MenuService _menuService;
+        private readonly MenuFactory _menuService;
 
         private TelegramBotClient _client;
         private CancellationTokenSource _cts;
 
-        public BotController(UserService userService, MenuService menuService)
+        public BotController(UserService userService, MenuFactory menuService)
         {
             _userService = userService;
             _menuService = menuService;
@@ -114,9 +114,9 @@ namespace MoySamInfoBot.TelegramBot.Presentation
         private async Task HandleUpdateByUserId(long userId, ITelegramBotClient client, Update update, CancellationToken cancellationToken)
         {
             var user = await _userService.GetUserByIdAsync(userId);
-            var menu = _menuService.GetMenuByUser(user);
+            var menu = _menuService.GetMenu(user, client);
 
-            await menu.HandleUpdateAsync(user, client, update, cancellationToken);
+            await menu.HandleUpdateAsync(update, cancellationToken);
         }
     }
 }

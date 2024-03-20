@@ -1,4 +1,4 @@
-﻿using MoySamInfoBot.TelegramBot.Core.Domain;
+﻿using MoySamInfoBot.TelegramBot.Core.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,7 @@ namespace MoySamInfoBot.TelegramBot.Core.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<User> GetUserByIdAsync(long  chatId);
+        Task<IUser> GetUserByIdAsync(long  chatId);
+        Task Save(IUser user);
     }
 }

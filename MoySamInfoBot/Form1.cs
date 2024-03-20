@@ -11,7 +11,7 @@ namespace MoySamInfoBot
         {
             InitializeComponent();
 
-            _bot = new BotController(new UserService(), new MenuService()
+            _bot = new BotController(new UserService(), new MenuFactory()
                 );
             _bot.Start();
         } 
